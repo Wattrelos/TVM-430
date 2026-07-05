@@ -1,0 +1,173 @@
+@startuml
+' Diagrama de Sequência Detalhado do Sistema de Sinalização TVM 430
+' Estilizado com cores modernas e layout limpo
+
+skinparam roundcorner 8
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+skinparam SequenceGroupBodyBackgroundColor #F5F7FA
+skinparam SequenceGroupHeaderFontColor #1E293B
+skinparam SequenceGroupHeaderFontSize 13
+
+' Paleta de cores estilo Material / Tech
+!define MAIN_COLOR #1E293B
+!define ACCENT_COLOR #3B82F6
+!define WARN_COLOR #EF4444
+!define GREEN_COLOR #10B981
+!define BG_COLOR #FFFFFF
+
+skinparam sequence {
+    ArrowColor ACCENT_COLOR
+    ActorBorderColor MAIN_COLOR
+    ActorBackgroundColor #E2E8F0
+    LifeLineBorderColor #64748B
+    LifeLineBackgroundColor #F1F5F9
+    ParticipantBorderColor MAIN_COLOR
+    ParticipantBackgroundColor #ECF2FF
+    ParticipantFontName "Consolas"
+    ParticipantFontSize 12
+    ParticipantFontColor MAIN_COLOR
+    
+    BoxBorderColor #CBD5E1
+    BoxBackgroundColor #F8FAFC
+}
+
+title Fluxo de Funcionamento e Busca de Via - TVM 430
+
+box "Inicialização do Poste de Sinal"
+actor "Simulador Trainz" as Trainz
+participant "Tvm430 (Poste)" as Poste
+end box
+
+box "Mecanismos de Busca e Elementos de Via"
+participant "GSTrackSearch\n(Rastreador)" as Search
+participant "Junction\n(Desvio)" as Junc
+participant "Vehicle\n(Outro Trem)" as Trem
+participant "Signal\n(Próximo Sinal)" as ProxSinal
+end box
+
+== Fase 1: Inicialização ==
+
+Trainz -> Poste: Init()
+activate Poste
+Poste -> Poste: Registrar referências (esteSinal)\ne rodar threads auxiliares
+
+Poste -> Poste: SignalNumber()\n[Gera número ID randômico para a placa]
+note right: Atribui um ID randômico\nentre 1000 e 2000 à malha FX
+
+Poste -> Poste: SignalMonitor()\n[Loop infinito que executa a cada 1 segundo]
+deactivate Poste
+
+== Fase 2: Busca de Objetos (BuscaObjeto) ==
+
+loop A cada 1 segundo (Thread: SignalMonitor)
+    Poste -> Search: BeginTrackSearch(true)\n[Inicia busca à frente no trilho]
+    activate Search
+    
+    Search --> Poste: Retorna instância do rastreador (tampao)
+    Poste -> Search: SearchNext()
+    Search --> Poste: Retorna primeiro MapObject
+    
+    loop Enquanto rastreador estiver ativo (while true)
+        Poste -> Search: GetDistance()\n[Obtém distância atual percorrida]
+        Search --> Poste: Retorna distância (metros)
+        
+        alt Distância > 3000 metros (Sem Sinalização)
+            Poste -> Poste: AplicaAspecto(8.34, 41, EX_CAUTION, "Sem sinalização à frente")
+            note over Poste: Velocidade máxima reduzida para 30 Km/h (Aspecto Amarelo/Piscante)
+            Poste -> Search: Encerrar busca
+            
+        else Próximo Objeto é Nulo (Fim de Via)
+            Poste -> Poste: AplicaAspecto(8.34, 40, EX_STOP, "Fim de linha ou fechada")
+            note over Poste: Velocidade limite 30 Km/h (Fundo Vermelho)
+            Poste -> Search: Encerrar busca
+            
+        else Objeto é uma Junção (Junction)
+            Poste -> Junc: GetDirection()\n[Verifica a direção da agulha]
+            activate Junc
+            Junc --> Poste: Retorna direção (0: Left, 1: Forward, 2: Right)
+            deactivate Junc
+            
+            Poste -> Search: SearchNext()
+            Search --> Poste: Retorna objeto subsequente
+            
+            alt Objeto subsequente é nulo (Junção interrompida)
+                Poste -> Poste: AplicaAspecto(0.02, 40, EX_STOP, "Desvio fechado / contra as agulhas")
+                note over Poste #LightPink: Parada Absoluta (0 Km/h - Fundo Vermelho)
+                Poste -> Search: Encerrar busca
+            else Junção alinhada
+                alt Direção é 0 (Left) ou 2 (Right) - Rota Divergente
+                    Poste -> Poste: Limita velocidade máxima local para 200 Km/h (55.56 m/s)
+                    note over Poste #LemonChiffon: Altera limite local de 320 para 200 Km/h
+                else Direção é 1 (Forward) - Via Principal
+                    note over Poste #LightGreen: Junção favorável. Continua como via linear.
+                end
+                note over Poste: Continua a varredura a partir do próximo objeto encontrado
+            end
+            
+        else Objeto é um Trem (Vehicle)
+            alt Distância < 30 metros (Colisão iminente)
+                Poste -> Poste: SetSignalStateEx(0, "Ocupação imediata")
+                note over Poste #LightPink: Parada Absoluta (Red)
+            else Distância segura
+                Poste -> Trem: GetVelocity()
+                activate Trem
+                Trem --> Poste: Retorna velocidade do outro trem
+                deactivate Trem
+                
+                alt Trem se afastando / mesma direção (Velocidade < -1.00 m/s)
+                    Poste -> Poste: AplicaAspecto(8.34, 41, EX_STOP_THEN_CONTINUE, "Bloco ocupado por trem à frente")
+                    note over Poste: Limite 30 Km/h (Vermelho permissivo)
+                else Trem vindo na contramão (Velocidade > 1.00 m/s)
+                    Poste -> Poste: AplicaAspecto(0.02, 41, EX_STOP, "Via reservada para trem no sentido oposto")
+                    note over Poste #LightPink: Parada Absoluta (Fundo Vermelho)
+                else Trem parado à frente (Entre -1.00 e 1.00 m/s)
+                    Poste -> Poste: AplicaAspecto(0.34, 40, EX_STOP, "Bloco ocupado por trem parado")
+                    note over Poste #LightPink: Parada Absoluta (Fundo Vermelho)
+                end
+            end
+            Poste -> Search: Encerrar busca
+            
+        else Objeto é outro Sinal (Signal)
+            Poste -> Search: GetFacingRelativeToSearchDirection()
+            Search --> Poste: Retorna se o sinal está voltado para nós (facing)
+            
+            alt Sinal está de frente (Válido para leitura)
+                Poste -> ProxSinal: GetSpeedLimit()
+                activate ProxSinal
+                ProxSinal --> Poste: Retorna velocidade limite do sinal da frente (prox_limit_veloc)
+                deactivate ProxSinal
+                
+                alt Velocidade do próximo sinal >= Limite permitido deste poste
+                    alt Limite atual do poste > 220 Km/h
+                        Poste -> Poste: AplicaAspecto(limite_atual, 45, EX_PROCEED, "Linha livre")
+                        note over Poste #LightGreen: Sinal verde (Linha livre para velocidade de alta velocidade > 220 Km/h)
+                    else Limite atual do poste <= 220 Km/h
+                        Poste -> Poste: AplicaAspecto(limite_atual, 43, EX_PROCEED, "Linha livre")
+                        note over Poste: Sinal preto (Linha livre para velocidade <= 220 Km/h)
+                    end
+                else Velocidade do próximo sinal é menor (Curva de frenagem)
+                    Poste -> Poste: Calcular limite usando Torricelli\n(v² = v_prox² + 2 * a * d)
+                    note over Poste: Decel. típica de conforto (a = 0.6 m/s²)
+                    
+                    alt limite_calculado > 60 Km/h
+                        Poste -> Poste: AplicaAspecto(limite_calculado, 43, EX_ADVANCE_CAUTION)
+                        note over Poste: Alerta prévio (Fundo Preto com valor calculado)
+                    else limite_calculado > 30 Km/h
+                        Poste -> Poste: AplicaAspecto(limite_calculado, 43, EX_CAUTION)
+                        note over Poste: Alerta de frenagem (Fundo Preto com valor calculado)
+                    else limite_calculado > 1.2 Km/h
+                        Poste -> Poste: AplicaAspecto(limite_calculado, 41, EX_STOP_THEN_CONTINUE)
+                        note over Poste: Aproximação de ocupação (Fundo Vermelho/Branco)
+                    else limite_calculado <= 1.2 Km/h
+                        Poste -> Poste: AplicaAspecto(0.02, 40, EX_STOP)
+                        note over Poste #LightPink: Parada Absoluta (Fundo Vermelho)
+                    end
+                end
+            end
+            Poste -> Search: Encerrar busca
+        end
+    end
+    deactivate Search
+end
+@endum
