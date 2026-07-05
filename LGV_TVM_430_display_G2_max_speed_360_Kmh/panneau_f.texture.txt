@@ -1,0 +1,2 @@
+Primary=Panneau_F.tga
+Tile=st

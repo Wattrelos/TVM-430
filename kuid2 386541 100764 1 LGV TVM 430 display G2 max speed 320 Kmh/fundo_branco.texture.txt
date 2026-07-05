@@ -1,0 +1,2 @@
+Primary=Fundo_branco.tga
+Tile=st

@@ -1,0 +1,2 @@
+Primary=red_white.jpg
+Tile=st

@@ -1,0 +1,3 @@
+Primary=alerta.tga
+Alpha=alerta_alpha.bmp
+Tile=st

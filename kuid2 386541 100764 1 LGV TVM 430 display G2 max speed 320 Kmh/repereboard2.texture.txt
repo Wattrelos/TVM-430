@@ -1,0 +1,2 @@
+Primary=RepereBoard2.tga
+Tile=st

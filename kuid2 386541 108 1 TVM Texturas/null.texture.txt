@@ -1,0 +1,2 @@
+Primary=null.tga
+Tile=st
