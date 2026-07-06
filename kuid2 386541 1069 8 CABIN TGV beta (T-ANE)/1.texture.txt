@@ -1,0 +1,2 @@
+Primary=1.tga
+Tile=st

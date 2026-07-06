@@ -1,21 +1,41 @@
-﻿
+
 kind                                    "texture-group"
 
 textures
 {
-  40                                    "red.texture"
-  41                                    "red_white.texture"
-  42                                    "black_white.texture"
-  43                                    "black.texture"
-  44                                    "green_white.texture"
-  45                                    "green.texture"
+  0                                     "null.texture"
+  1                                     "tvmxxx.texture"
+  2                                     "tvm000.texture"
+  3                                     "va060.texture"
+  4                                     "vl060.texture"
+  5                                     "va080.texture"
+  6                                     "vl080.texture"
+  7                                     "va130.texture"
+  8                                     "vl130.texture"
+  9                                     "va160.texture"
+  10                                    "vl160.texture"
+  11                                    "va200.texture"
+  12                                    "vl200.texture"
+  13                                    "va220.texture"
+  14                                    "vl220.texture"
+  15                                    "va270.texture"
+  16                                    "vl270.texture"
+  17                                    "va300.texture"
+  18                                    "vl300.texture"
+  19                                    "va320.texture"
+  20                                    "vl320.texture"
+  21                                    "va360.texture"
+  22                                    "vl360.texture"
+
+
+
 }
 category-class                          "JO"
 trainz-build                            3.5
-description                             "Novas texturas para a sinalização TVM"
-username                                "TVM Texturas 3"
-author                                  "Josias Sobrinho"
-organisation                            "FATEC"
+description                             "Texturas para a sinalização TVM"
+username                                "TVM Texturas"
+author                                  
+organisation                            
 
 thumbnails
 {
@@ -26,7 +46,7 @@ thumbnails
     image                               "thumbnail_0.jpg"
   }
 }
-kuid                                    <kuid:386541:200>
+kuid                                    <kuid2:386541:108:1>
 
 kuid-table
 {

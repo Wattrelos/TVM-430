@@ -6,7 +6,6 @@ include "junction.gs"
 class Tvm430 isclass Signal {
 
 	Signal esteSinal; // Estado do sinal
-	Asset skins = GetAsset().FindAsset("skins");
 
 	public define int EX_STOP                    = 0;
 	public define int EX_STOP_THEN_CONTINUE      = 1;
@@ -16,8 +15,7 @@ class Tvm430 isclass Signal {
 
 	void AplicaAspecto(float velocidade_limite, int skin, int aspecto, string razao){
 		esteSinal.SetSignalStateEx(aspecto,razao);
-		SetSpeedLimit(velocidade_limite);
-		SetFXTextureReplacement("efeito",skins,skin);
+		esteSinal.SetSpeedLimit(velocidade_limite);
 		return;
 	}
 
@@ -25,7 +23,7 @@ class Tvm430 isclass Signal {
 		Vehicle theVeh;
 		GSTrackSearch tampao = esteSinal.BeginTrackSearch(true);
 		MapObject nextMapObject = tampao.SearchNext();
-		float this_signal_max_speed_limit = 88.89; // velocidade limite deste poste de sinalização (88.89 metros por segundo = 320 Km/h)
+		float this_signal_max_speed_limit = 100; // velocidade limite deste poste de sinalização (88.89 metros por segundo = 320 Km/h)
 		while(true){
 			float distancia = tampao.GetDistance(); // Obter a distância em metros.
 			if (distancia > 3000) {

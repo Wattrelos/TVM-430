@@ -1,0 +1,3 @@
+Primary=pointer_bar2.tga
+Alpha=pointer_bar2.tga
+Tile=st

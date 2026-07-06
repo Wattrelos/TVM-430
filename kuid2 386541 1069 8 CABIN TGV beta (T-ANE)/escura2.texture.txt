@@ -1,0 +1,2 @@
+Primary=escura2.tga
+Tile=st

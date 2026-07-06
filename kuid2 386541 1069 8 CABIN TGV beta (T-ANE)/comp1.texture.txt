@@ -1,0 +1,2 @@
+Primary=comp1.tga
+Tile=st

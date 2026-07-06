@@ -1,0 +1,2 @@
+Primary=rouge.tga
+Tile=st

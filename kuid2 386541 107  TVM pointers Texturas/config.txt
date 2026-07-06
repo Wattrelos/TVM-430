@@ -1,0 +1,32 @@
+﻿
+kuid                                    <kuid2:386541:107:1>
+kind                                    "texture-group"
+
+textures
+{
+  0                                     "pointer_white.texture"
+  1                                     "pointer_grey.texture"
+  2                                     "pointer_yellow.texture"
+  3                                     "pointer_red.texture"
+}
+category-class                          "JO"
+trainz-build                            3.5
+description                             "Textures for point speedometer ETCS"
+username                                "TVM pointers Texturas"
+author                                  "Josias Sobrinho"                                 
+organisation                            
+
+thumbnails
+{
+  0
+  {
+    width                               240
+    height                              180
+    image                               "thumbnail_0.jpg"
+  }
+}
+
+
+kuid-table
+{
+}

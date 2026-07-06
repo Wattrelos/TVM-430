@@ -1,0 +1,3 @@
+Primary=pointer_yellow.tga
+Alpha=pointer_yellow.tga
+Tile=st

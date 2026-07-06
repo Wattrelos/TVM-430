@@ -1,0 +1,33 @@
+﻿
+kind                                    "texture-group"
+
+textures
+{
+  40                                    "red.texture"
+  41                                    "red_white.texture"
+  42                                    "black_white.texture"
+  43                                    "black.texture"
+  44                                    "green_white.texture"
+  45                                    "green.texture"
+}
+category-class                          "JO"
+trainz-build                            3.5
+description                             "Novas texturas para a sinalização TVM"
+username                                "TVM Texturas 3"
+author                                  "Josias Sobrinho"
+organisation                            "FATEC"
+
+thumbnails
+{
+  0
+  {
+    width                               240
+    height                              180
+    image                               "thumbnail_0.jpg"
+  }
+}
+kuid                                    <kuid:386541:200>
+
+kuid-table
+{
+}

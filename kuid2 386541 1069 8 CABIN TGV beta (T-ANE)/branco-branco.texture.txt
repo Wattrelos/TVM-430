@@ -1,0 +1,3 @@
+Primary=branco.tga
+Alpha=branco.tga
+Tile=st

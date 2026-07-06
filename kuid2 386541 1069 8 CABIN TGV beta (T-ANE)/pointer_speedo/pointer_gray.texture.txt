@@ -1,0 +1,2 @@
+Primary=pointer_gray.tga
+Tile=st

@@ -1,0 +1,2 @@
+Primary=panel.tga
+Tile=st

@@ -1,0 +1,230 @@
+﻿
+kuid                                    <kuid2:386541:1069:8>
+username                                "CABIN TGV beta (T-ANE). "
+category-region                         "AU;BE;BR;DE;FR;UK"
+category-era                            "1980s;1990s;2000s;2010s"
+kind                                    "interior"
+cameradefault                           3
+contact-email                           "josiaswattrelos-tane@yahoo.com.br"
+trainz-build                            3.5
+script                                  "tvm430.gs"
+class                                   "Tvm430"
+category-class                          "ZI"
+
+cameralist
+{
+  camera0                               0,0,0,0,0
+  camera1                               0,0.1,0.1,0,-0.1
+  camera2                               0,0.2,0.2,0,-0.2
+  camera3                               0,0.3,0.3,0,-0.3
+  camera4                               0,0.4,0.4,0,-0.4
+  camera5                               0,0.5,0.4,0,-0.35
+  camera6                               0,0.3,0.4,0,-0.1
+  camera7                               0,0.2,0.3,0,-0.3
+  camera8                               0,0.1,0.3,0,-0.3
+  camera9                               0,0,0.3,0,-0.1
+}
+
+mesh-table
+{
+  default
+  {
+    mesh                                "cab tgv.im"
+    auto-create                         1
+  }
+  
+  bptrainbrakecylinder_needle
+  {
+    kind                                "needle"
+    auto-create                         1
+    mesh                                "ponteiro_branco.im"
+    att                                 "a.brake_cyl_pressure"
+    limits                              0,1000
+    att-parent                          "default"
+  }
+  
+  bptrainbrakepipe_needle
+  {
+    kind                                "needle"
+    auto-create                         1
+    mesh                                "ponteiro_branco.im"
+    att                                 "a.brake_pipe_pressure"
+    limits                              0,1000
+    att-parent                          "default"
+  }
+  
+  bploco_equaliser
+  {
+    kind                                "needle"
+    auto-create                         1
+    mesh                                "ponteiro_triangulo.im"
+    att                                 "a.equaliser_pressure"
+    limits                              0,1000
+    att-parent                          "default"
+  }
+  
+  bplocomain_needle
+  {
+    kind                                "needle"
+    auto-create                         1
+    mesh                                "ponteiro_vermelho.im"
+    att                                 "a.main_res_pressure"
+    limits                              0,1000
+    att-parent                          "default"
+  }
+  
+  throttle_lever
+  {
+    kind                                "lever"
+    auto-create                         1
+    mesh                                "alavanca2.im"
+    att                                 "a.throttle_lever"
+    limits                              0,32
+    angles                              1.571,0
+    notches                             0,0.0303,0.0606,0.0909,0.1212,0.1515,0.1818,0.2121,0.2424,0.2727,0.303,0.3333,0.3636,0.3939,0.4242,0.4545,0.4848,0.5151,0.5454,0.5757,0.606,0.6363,0.6666,0.6969,0.7272,0.7575,0.7878,0.8181,0.8484,0.8787,0.909,0.9393,1
+    notchheight                         1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1
+    radius                              0.35
+    att-parent                          "default"
+  }
+  
+  trainbrake_lever
+  {
+    kind                                "lever"
+    auto-create                         1
+    mesh                                "freio.im"
+    att                                 "a.train_brake_lever"
+    limits                              0,4
+    angles                              0.349,-0.349
+    notches                             0,0.31,0.35,0.39,0.43,0.47,0.5,1
+    notchheight                         1,2,2,2,2,2,1
+    radius                              0.15
+    att-parent                          "default"
+  }
+  
+  reverser_lever
+  {
+    kind                                "lever"
+    auto-create                         1
+    mesh                                "freio.im"
+    att                                 "a.reverser_lever"
+    limits                              0,2
+    angles                              0.349,-0.349
+    notches                             0,0.5,1
+    notchheight                         1,1,1
+    att-parent                          "default"
+  }
+  
+  tvm
+  {
+    mesh                                "tvm.im"
+    att                                 "a.coronaP01"
+    att-parent                          "default"
+    auto-create                         1
+  }
+  
+  speedobase
+  {
+    auto-create                         1
+    mesh                                "pointer_speedo\speedo_base.im"
+    anim                                "pointer_speedo\speedo_base.kin"
+    att                                 "a.tvm"
+    att-parent                          "tvm"
+    
+    effects
+    {
+      velo
+      {
+        kind                            "name"
+        att                             "a.speed_digital"
+        name                            "VLC"
+        fontsize                        0.005
+        fontcolor                       64,6,0
+      }
+      
+      distancia
+      {
+        kind                            "name"
+        att                             "a.distance"
+        name                            "distance"
+        fontsize                        0.007
+        fontcolor                       250,250,250
+      }
+    }
+  }
+  
+  speedometer
+  {
+    auto-create                         1
+    mesh                                "pointer_speedo\speedometer.im"
+    att                                 "a.speed"
+    anim                                "pointer_speedo\speedometer.kin"
+    att-parent                          "speedobase"
+    
+    effects
+    {
+      dial
+      {
+        kind                            "texture-replacement"
+        texture                         "red_pointer_bar-red_pointer_bar.texture"
+      }
+    }
+  }
+  
+  pointer_limit
+  {
+    auto-create                         1
+    mesh                                "pointer_limit\pointer_limit.im"
+    att                                 "a.speed"
+    anim                                "pointer_limit\pointer_limit.kin"
+    att-parent                          "speedobase"
+  }
+  
+  target_speed
+  {
+    auto-create                         1
+    mesh                                "target_speed\target_speed.im"
+    att                                 "a.speed"
+    anim                                "target_speed\target_speed.kin"
+    att-parent                          "speedobase"
+  }
+  
+  verde
+  {
+    mesh                                "tvm\tvm.im"
+    att-parent                          "tvm"
+    auto-create                         1
+    att                                 "a.tvm"
+    
+    effects
+    {
+      efeito
+      {
+        kind                            "texture-replacement"
+        texture                         "fundo_verde.texture"
+      }
+    }
+  }
+}
+
+thumbnails
+{
+  0
+  {
+    image                               "cabine240x180.jpg"
+    width                               240
+    height                              180
+  }
+  
+  1
+  {
+    image                               "cabine512x512.jpg"
+    width                               512
+    height                              512
+  }
+}
+
+kuid-table
+{
+  skins                                 <kuid2:386541:108:1>
+  dials                                 <kuid2:386541:107:1>
+}

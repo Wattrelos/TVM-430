@@ -1,0 +1,2 @@
+Primary=fundo_verde.tga
+Tile=st
