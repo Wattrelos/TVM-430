@@ -2,6 +2,7 @@ include "meshobject.gs"
 include "signal.gs"
 include "trackside.gs"
 include "defaultlocomotivecabin.gs"
+include "junction.gs"
 
 class Tvm430 isclass DefaultLocomotiveCabin
 {
@@ -87,22 +88,50 @@ class Tvm430 isclass DefaultLocomotiveCabin
 			}
 		}
 		
+		float limite_velocidade = train.GetSpeedLimit();
 		float targetSpeedVal = train.GetSpeedLimit();
 		float pointerLimitVal = train.GetSpeedLimit();
 		int distanciaDisplay = 0;
 		
-		while (true){
-			float limite_velocidade = train.GetSpeedLimit();
-			nextItem = trackSearch.SearchNext();
-			if (nextItem == null){
-				setSkin(0);
-				break;
-			}
+		nextItem = trackSearch.SearchNext();
+		if (nextItem == null){
+			setSkin(0);
+		}
+		
+		while (nextItem != null){
 			distance = trackSearch.GetDistance();
 			if (distance > 5000) {
 				setSkin(0);
 				break;
 			}
+			
+			if (cast<Junction> nextItem) {
+				Junction junc = cast<Junction> nextItem;
+				int dir = junc.GetDirection();
+				nextItem = trackSearch.SearchNext();
+				if (nextItem == null) {
+					setSkin(1); // 0 km/h / STOP
+					targetSpeedVal = 0.02; // Velocidade de parada
+					if (targetSpeedVal < limite_velocidade) {
+						float perm_speed = Math.Sqrt((targetSpeedVal * targetSpeedVal) + (2.0 * 0.6 * distance));
+						if (perm_speed > limite_velocidade) {
+							perm_speed = limite_velocidade;
+						}
+						pointerLimitVal = perm_speed;
+					} else {
+						pointerLimitVal = limite_velocidade;
+					}
+					distanciaDisplay = distance;
+					break;
+				}
+				if (dir == 0 or dir == 2) {
+					if (limite_velocidade > 55.58) {
+						limite_velocidade = 55.58; // Limita a 200 Km/h
+					}
+				}
+				continue;
+			}
+			
 			trackSideItem = cast<Trackside> nextItem;
 			if(trackSideItem)
 			{
@@ -184,6 +213,7 @@ class Tvm430 isclass DefaultLocomotiveCabin
 					}
 				}
 			}
+			nextItem = trackSearch.SearchNext();
 		}
 		
 		SetFXNameText("distance", distanciaDisplay);
