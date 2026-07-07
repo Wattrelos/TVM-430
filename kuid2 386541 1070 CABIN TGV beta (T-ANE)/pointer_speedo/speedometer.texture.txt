@@ -1,0 +1,2 @@
+Primary=Speedometer.tga
+Tile=st

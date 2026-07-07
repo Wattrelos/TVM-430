@@ -1,0 +1,3 @@
+Primary=dial_alpha3.png
+Alpha=dial_alpha3.png
+Tile=st

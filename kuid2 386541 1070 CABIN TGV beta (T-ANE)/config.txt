@@ -1,5 +1,5 @@
 ﻿
-kuid                                    <kuid2:386541:1069:8>
+kuid                                    <kuid:386541:1070>
 username                                "CABIN TGV beta (T-ANE). "
 category-region                         "AU;BE;BR;DE;FR;UK"
 category-era                            "1980s;1990s;2000s;2010s"
@@ -155,9 +155,9 @@ mesh-table
   speedometer
   {
     auto-create                         1
-    mesh                                "pointer_speedo\speedometer.im"
+    mesh                                "ponteiro\speedo.im"
     att                                 "a.speed"
-    anim                                "pointer_speedo\speedometer.kin"
+    anim                                "ponteiro\speedo.kin"
     att-parent                          "speedobase"
     
     effects
@@ -165,7 +165,7 @@ mesh-table
       dial
       {
         kind                            "texture-replacement"
-        texture                         "red_pointer_bar-red_pointer_bar.texture"
+        texture                         "dial_alpha3-dial_alpha3.texture"
       }
     }
   }
