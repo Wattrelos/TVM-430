@@ -3,6 +3,7 @@ include "signal.gs"
 include "trackside.gs"
 include "defaultlocomotivecabin.gs"
 include "junction.gs"
+include "speedlimit.gs"
 
 class Tvm430 isclass DefaultLocomotiveCabin
 {
@@ -151,7 +152,7 @@ class Tvm430 isclass DefaultLocomotiveCabin
 					distanciaDisplay = distance;
 					break;
 				}
-				if(cast<Signal> nextItem) {
+				if(cast<Signal> nextItem or cast<SpeedLimit> nextItem) {
 					if(trackSearch.GetFacingRelativeToSearchDirection()) {
 						Trackside trackSideItem = cast<Trackside> nextItem;
 						if(trackSideItem != null){

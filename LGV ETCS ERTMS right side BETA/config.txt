@@ -1,0 +1,76 @@
+
+kuid                                    <kuid:386541:43701>
+username                                "LGV ETCS ERTMS right side BETA"
+kind                                    "mosignal"
+always-controlled                       0
+author                                  "Josias Sobrinho"
+category-era                            "1980s;1990s;2000s;2010s"
+category-region                         "AU;BE;BR;DE;FR;UK"
+distant                                 0
+double-blocking                         0
+function                                "TrackSignal"
+home                                    0
+license                                 "Copyright"
+organisation                            "FATEC-MC"
+overlap                                 0
+repeater                                0
+trackside                               2.9
+trainz-build                            3.5
+script                                  "etcs.gs"
+class                                   "Etcs"
+description                             "Automatic speed control
+"
+light                                   0
+category-class                          "WS"
+
+mesh-table
+{
+  default
+  {
+    mesh-asset                          <kuid:386541:100788>
+    mesh                                "pole_etcs_right.im"
+    auto-create                         1
+    
+    effects
+    {
+      0
+      {
+        kind                            "name"
+        att                             "a.number"
+        name                            "number"
+        fontsize                        0.09
+        fontcolor                       0,0,0
+      }
+      
+      1
+      {
+        kind                            "name"
+        att                             "a.speedlimit"
+        name                            "speedlimit"
+        fontsize                        0.09
+        fontcolor                       0,10,255
+      }
+    }
+  }
+}
+
+kuid-table
+{
+  0                                     <kuid:386541:100788>
+}
+thumbnails
+{
+  0
+  {
+    image                               "tvm-512x512.jpg"
+    width                               512
+    height                              512
+  }
+  
+  1
+  {
+    image                               "tvm-240x180.jpg"
+    width                               240
+    height                              180
+  }
+}

@@ -1,0 +1,288 @@
+@startuml
+title Diagrama de Sequência - Lógica de Sinalização TVM430
+
+' Definição de estilos modernos via CSS (PlantUML <style>)
+<style>
+sequenceDiagram {
+  ' Configurações globais de texto
+  FontName "Segoe UI"
+  FontColor #2C3E50
+  
+  lifeline {
+    LineColor #95A5A6
+    BackgroundColor #F8F9F9
+  }
+  
+  participant {
+    RoundCorner 8
+    BorderThickness 1.5
+    FontSize 12
+    FontColor #FFFFFF
+    FontStyle bold
+  }
+  
+  ' Estilos para cada estereótipo de participante
+  .loco {
+    BackgroundColor #2980B9
+    BorderColor #1F618D
+  }
+  .controller {
+    BackgroundColor #16A085
+    BorderColor #117A65
+  }
+  .search {
+    BackgroundColor #8E44AD
+    BorderColor #702963
+  }
+  .track {
+    BackgroundColor #D35400
+    BorderColor #A04000
+  }
+  .hud {
+    BackgroundColor #34495E
+    BorderColor #2C3E50
+  }
+  
+  arrow {
+    LineColor #2C3E50
+    FontColor #2C3E50
+    FontSize 11
+  }
+  
+  note {
+    RoundCorner 6
+    BorderColor #F39C12
+    BackgroundColor #FEF9E7
+    FontColor #7E5109
+    FontSize 11
+  }
+  
+  group {
+    BorderColor #7F8C8D
+    BackgroundColor #FBFCFC
+    FontColor #1A5276
+    FontSize 12
+    FontStyle bold
+  }
+}
+</style>
+
+autonumber "<b>[00]</b>"
+
+participant "Trem / Locomotiva" as Train <<loco>>
+participant "Cabine TVM430\n(tvm430.gs)" as Cabin <<controller>>
+participant "Pesquisador de Via\n(GSTrackSearch)" as Search <<search>>
+participant "Elementos da Via\n(Junction/Signal/Vehicle/SpeedLimit)" as Track <<track>>
+participant "HUD / Mostradores" as HUD <<hud>>
+
+== Inicialização (Init) ==
+... Ocorre uma vez na inicialização da cabine ...
+Train -> Cabin: Init()
+activate Cabin
+note over Cabin: Carrega os assets de skins (tela TVM)\ne dials (leds do velocímetro).
+Cabin -> Cabin: skins = FindAsset("skins")
+Cabin -> Cabin: dials = FindAsset("dials")
+deactivate Cabin
+
+== Ciclo de Atualização (Update) ==
+... Executado periodicamente a cada frame / tick ...
+
+Train -> Cabin: Update()
+activate Cabin
+
+note over Cabin: Valida se a locomotiva\ne o trem estão ativos
+alt loco == null OU train == null
+    Cabin --> Train: Retorna (encerra Update)
+end
+
+Cabin -> Train: GetVehicles()
+activate Train
+Train --> Cabin: v (Vetor de Veículos)
+deactivate Train
+
+alt v == null OU tamanho de v == 0
+    Cabin --> Train: Retorna (encerra Update)
+end
+
+note over Cabin: Determina o sentido do trem\ne inicia o escaneador na direção correta
+alt Velocidade do veículo principal (v[0]) > -1.0
+    Cabin -> Cabin: searchV = v[0] (Frente)
+else
+    Cabin -> Cabin: searchV = v[último] (Trás)
+end
+
+Cabin -> Train: GetVelocity()
+activate Train
+Train --> Cabin: velocity (m/s)
+deactivate Train
+
+Cabin -> Track: BeginTrackSearch(searchDirection)
+activate Track
+Track --> Search: Instância de GSTrackSearch
+deactivate Track
+
+note over Cabin: Atualiza velocímetro físico e digital (VLC em Km/h)
+Cabin -> HUD: SetMeshAnimationFrame("speedometer", |velocity|)
+Cabin -> HUD: SetFXNameText("VLC", |velocity| * 3.6)
+
+alt Excesso de Velocidade
+    alt |velocity| > Limite de Velocidade do Trem
+        Cabin -> HUD: SetFXTextureReplacement("dial", dials, 3) [Dial Vermelho]
+    else
+        Cabin -> HUD: SetFXTextureReplacement("dial", dials, 1) [Dial Cinza Padrão]
+    end
+end
+
+note over Cabin: Inicializa variáveis padrão de controle de velocidade e distância
+Cabin -> Cabin: limite_velocidade = train.GetSpeedLimit()
+Cabin -> Cabin: targetSpeedVal = train.GetSpeedLimit()
+Cabin -> Cabin: pointerLimitVal = train.GetSpeedLimit()
+Cabin -> Cabin: distanciaDisplay = 0
+
+== Escaneamento da Via (Loop de Busca) ==
+
+Cabin -> Search: SearchNext()
+activate Search
+Search --> Cabin: nextItem
+deactivate Search
+
+alt nextItem == null
+    Cabin -> Cabin: setSkin(0) [Nenhum sinal à frente]
+end
+
+loop Enquanto nextItem != null
+    Cabin -> Search: GetDistance()
+    activate Search
+    Search --> Cabin: distance (metros)
+    deactivate Search
+    
+    alt distance > 5000 metros (Fora de alcance)
+        Cabin -> Cabin: setSkin(0)
+        note over Cabin: Sai do loop de escaneamento
+        break
+    end
+    
+    alt nextItem é uma Junction (Desvio/Agulha)
+        Cabin -> Track: GetDirection()
+        activate Track
+        Track --> Cabin: dir (direção do desvio)
+        deactivate Track
+        
+        Cabin -> Search: SearchNext()
+        activate Search
+        Search --> Cabin: nextItem
+        deactivate Search
+        
+        alt nextItem == null (Fim de linha após desvio)
+            Cabin -> Cabin: setSkin(1) [Indica Parada - STOP]
+            Cabin -> Cabin: targetSpeedVal = 0.02 (velocidade de parada)
+            note over Cabin: Calcula velocidade permissiva decrescente\n(curva de frenagem até a parada)
+            alt targetSpeedVal < limite_velocidade
+                Cabin -> Cabin: perm_speed = Math.Sqrt(targetSpeedVal^2 + 2 * 0.6 * distance)
+                Cabin -> Cabin: pointerLimitVal = min(perm_speed, limite_velocidade)
+            else
+                Cabin -> Cabin: pointerLimitVal = limite_velocidade
+            end
+            Cabin -> Cabin: distanciaDisplay = distance
+            note over Cabin: Encerra busca
+            break
+        end
+        
+        alt dir == 0 OU dir == 2 (Divergência / Desvio ativo)
+            alt limite_velocidade > 55.58 m/s (200 Km/h)
+                Cabin -> Cabin: limite_velocidade = 55.58 [Impõe limite de 200 Km/h]
+            end
+        end
+        note over Cabin: Continua escaneando a via após o desvio
+        
+    else nextItem é Trackside (Sinal ou Veículo na via)
+    
+        alt nextItem é um Vehicle (Obstáculo / Outro Trem à frente)
+            Cabin -> Cabin: setSkin(2) [Indica Velocidade de Manobra - 30 Km/h]
+            Cabin -> Cabin: targetSpeedVal = 8.34 m/s (30 Km/h)
+            note over Cabin: Calcula curva de frenagem até o trem à frente
+            Cabin -> Cabin: perm_speed = Math.Sqrt(8.34^2 + 2 * 0.6 * distance)
+            Cabin -> Cabin: pointerLimitVal = min(perm_speed, limite_velocidade)
+            Cabin -> Cabin: distanciaDisplay = distance
+            note over Cabin: Encerra busca para proteger contra o obstáculo
+            break
+            
+        else nextItem é um Signal OU SpeedLimit
+            Cabin -> Search: GetFacingRelativeToSearchDirection()
+            activate Search
+            Search --> Cabin: isFacing (Orientação do sinal/placa)
+            deactivate Search
+            
+            alt isFacing == true (Sinal/placa voltado para o trem)
+                Cabin -> Track: GetSpeedLimit()
+                activate Track
+                Track --> Cabin: prox_limit_veloc (Velocidade limite obtida)
+                deactivate Track
+                
+                Cabin -> Cabin: targetSpeedVal = min(prox_limit_veloc, limite_velocidade)
+                
+                alt distance > 0 e prox_limit_veloc < limite_velocidade
+                    note over Cabin: Calcula velocidade permissiva temporária\nbaseada na curva de desaceleração de 0.6 m/s²
+                    Cabin -> Cabin: perm_speed = Math.Sqrt(prox_limit_veloc^2 + 2 * 0.6 * distance)
+                    Cabin -> Cabin: pointerLimitVal = min(perm_speed, limite_velocidade)
+                else
+                    Cabin -> Cabin: pointerLimitVal = limite_velocidade
+                end
+                Cabin -> Cabin: distanciaDisplay = distance
+                
+                note over Cabin: Atualiza cor do Dial conforme a velocidade comparada ao limite do sinal
+                alt velocidade > limite do trem
+                    Cabin -> HUD: SetFXTextureReplacement("dial", dials, 3) [Vermelho]
+                else if velocidade > prox_limit_veloc
+                    Cabin -> HUD: SetFXTextureReplacement("dial", dials, 2) [Amarelo/Laranja]
+                else
+                    Cabin -> HUD: SetFXTextureReplacement("dial", dials, 1) [Cinza]
+                end
+                
+                note over Cabin: Mapeia velocidade do sinal para a Skin correspondente na cabine TVM
+                alt prox_limit_veloc >= 100.0 m/s (360 Km/h)
+                    Cabin -> Cabin: setSkin(22)
+                else if prox_limit_veloc >= 88.81 m/s (320 Km/h)
+                    Cabin -> Cabin: setSkin(20)
+                else if prox_limit_veloc >= 83.35 m/s (300 Km/h)
+                    Cabin -> Cabin: setSkin(18)
+                else if prox_limit_veloc >= 77.80 m/s (270 Km/h)
+                    Cabin -> Cabin: setSkin(16)
+                else if prox_limit_veloc >= 61.12 m/s (220 Km/h)
+                    Cabin -> Cabin: setSkin(14)
+                else if prox_limit_veloc >= 55.58 m/s (200 Km/h)
+                    Cabin -> Cabin: setSkin(12)
+                else if prox_limit_veloc >= 44.46 m/s (160 Km/h)
+                    Cabin -> Cabin: setSkin(10)
+                else if prox_limit_veloc >= 33.35 m/s (120 Km/h)
+                    Cabin -> Cabin: setSkin(8)
+                else if prox_limit_veloc >= 22.24 m/s (80 Km/h)
+                    Cabin -> Cabin: setSkin(6)
+                else if prox_limit_veloc >= 16.68 m/s (60 Km/h)
+                    Cabin -> Cabin: setSkin(4)
+                else if prox_limit_veloc >= 8.34 m/s (30 Km/h)
+                    Cabin -> Cabin: setSkin(2)
+                else
+                    Cabin -> Cabin: setSkin(1) [0 Km/h / Parada]
+                end
+                
+                note over Cabin: Sinal processado. Encerra busca
+                break
+            end
+        end
+    end
+    
+    Cabin -> Search: SearchNext()
+    activate Search
+    Search --> Cabin: nextItem
+    deactivate Search
+end
+
+== Atualização Final do Painel (HUD) ==
+note over Cabin: Desenha os limites no painel do maquinista
+Cabin -> HUD: SetFXNameText("distance", distanciaDisplay)
+Cabin -> HUD: SetMeshAnimationFrame("target_speed", targetSpeedVal, 1.0)
+Cabin -> HUD: SetMeshAnimationFrame("pointer_limit", pointerLimitVal, 1.0)
+
+deactivate Cabin
+@endum}

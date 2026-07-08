@@ -1,11 +1,13 @@
-	// Poste de semáfaco com velocidade máxima de 360 Km/h.
+// Poste de semáfaco com velocidade máxima de 320 Km/h.
 include "Signal.gs"
 include "Trackside.gs"
 include "MeshObject.gs"
 include "junction.gs"
-class Tvm430 isclass Signal {
+class Etcs isclass Signal {
 
 	Signal esteSinal; // Estado do sinal
+	string post_number = "";
+	float max_speed_kmh = 360.0;
 
 	public define int EX_STOP                    = 0;
 	public define int EX_STOP_THEN_CONTINUE      = 1;
@@ -23,7 +25,7 @@ class Tvm430 isclass Signal {
 		Vehicle theVeh;
 		GSTrackSearch tampao = esteSinal.BeginTrackSearch(true);
 		MapObject nextMapObject = tampao.SearchNext();
-		float this_signal_max_speed_limit = 100; // velocidade limite deste poste de sinalização (100 metros por segundo = 360 Km/h)
+		float this_signal_max_speed_limit = max_speed_kmh / 3.6; // velocidade limite deste poste de sinalização calculada dinamicamente
 		while(true){
 			float distancia = tampao.GetDistance(); // Obter a distância em metros.
 			if (distancia > 3000) {
@@ -109,15 +111,110 @@ class Tvm430 isclass Signal {
 			Sleep(1);
 		}
 	}
-	thread void SignalNumber(void) {
-		string numero;
-		numero = Math.Rand(1000,2000);
-		esteSinal.SetFXNameText("Numero",numero);
+	
+	void UpdateVisuals(void) {
+		if (esteSinal) {
+			esteSinal.SetFXNameText("Numero", post_number);
+			esteSinal.SetFXNameText("number", post_number);
+			esteSinal.SetFXNameText("speedlimit", String.Format("%.0f", max_speed_kmh));
+		}
 	}
+	
 	public void Init(void) {
 		inherited();
 		esteSinal = cast<Signal>me;
-		SignalNumber();
+		if (post_number == "") {
+			post_number = "" + Math.Rand(1000, 2000);
+		}
+		UpdateVisuals();
 		SignalMonitor();
+	}
+
+	// --- Métodos do PropertyObject para o Surveyor ---
+
+	public Soup GetProperties(void) {
+		Soup soup = inherited();
+		if (!soup) {
+			soup = Constructors.NewSoup();
+		}
+		soup.SetNamedTag("number", post_number);
+		soup.SetNamedTag("max_speed_kmh", String.Format("%.0f", max_speed_kmh));
+		return soup;
+	}
+
+	public void SetProperties(Soup soup) {
+		inherited(soup);
+		if (soup) {
+			string loaded_number = soup.GetNamedTag("number");
+			if (loaded_number != "") {
+				post_number = loaded_number;
+			}
+			string loaded_speed = soup.GetNamedTag("max_speed_kmh");
+			if (loaded_speed != "") {
+				max_speed_kmh = Str.ToFloat(loaded_speed);
+			}
+		}
+		UpdateVisuals();
+	}
+
+	public string GetDescriptionHTML(void) {
+		string html = "<html><body>";
+		html = html + "<font size=4><b>Configurações do Sinal ETCS:</b><br><br>";
+		html = html + "Número do Poste: <a href=\"live://property/number\">" + post_number + "</a><br>";
+		html = html + "Velocidade Máxima (km/h): <a href=\"live://property/max_speed\">" + String.Format("%.0f", max_speed_kmh) + "</a><br>";
+		html = html + "</font></body></html>";
+		return html;
+	}
+
+	public string GetPropertyType(string propertyID) {
+		if (propertyID == "number" or propertyID == "max_speed") {
+			return "string";
+		}
+		return inherited(propertyID);
+	}
+
+	public string GetPropertyName(string propertyID) {
+		if (propertyID == "number") {
+			return "Número do Poste";
+		}
+		if (propertyID == "max_speed") {
+			return "Velocidade Máxima (km/h)";
+		}
+		return inherited(propertyID);
+	}
+
+	public string GetPropertyDescription(string propertyID) {
+		if (propertyID == "number") {
+			return "Digite o número de identificação deste poste de sinalização.";
+		}
+		if (propertyID == "max_speed") {
+			return "Digite o limite de velocidade máxima permitida por este sinal (em km/h).";
+		}
+		return inherited(propertyID);
+	}
+
+	public string GetPropertyValue(string propertyID) {
+		if (propertyID == "number") {
+			return post_number;
+		}
+		if (propertyID == "max_speed") {
+			return String.Format("%.0f", max_speed_kmh);
+		}
+		return inherited(propertyID);
+	}
+
+	public void SetPropertyValue(string propertyID, string value) {
+		if (propertyID == "number") {
+			post_number = value;
+			UpdateVisuals();
+		} else if (propertyID == "max_speed") {
+			float val = Str.ToFloat(value);
+			if (val > 0.0) {
+				max_speed_kmh = val;
+			}
+			UpdateVisuals();
+		} else {
+			inherited(propertyID, value);
+		}
 	}
 };

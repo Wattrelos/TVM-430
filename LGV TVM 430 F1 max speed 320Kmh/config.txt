@@ -1,0 +1,166 @@
+﻿
+kuid                                    <kuid2:386541:100734:1>
+username                                "LGV TVM F1 320Km/h max speed "
+kind                                    "mosignal"
+always-controlled                       0
+author                                  "Josias Sobrinho"
+category-era                            "1980s;1990s;2000s;2010s"
+category-region                         "AU;BE;BR;DE;FR;UK"
+distant                                 0
+double-blocking                         0
+function                                "TrackSignal"
+home                                    0
+license                                 "Copyright"
+organisation                            "FATEC-MC"
+overlap                                 0
+repeater                                0
+trackside                               2.9
+trainz-build                            3.5
+script                                  "tvm430.gse"
+class                                   "Tvm430"
+description                             "Extended Signal States:
+
+31	Vermelho. Pare antes do sinal. 
+32	Vermelho permissivo. Velocidade máxima: 30 Km/h
+24	Amarelo 60 Km/h. Próximo sinal é vermelho.
+26	130 Km/h.
+28	200 Km/h.
+34	270 Km/h.
+36	320 Km/h.
+38	360 Km/h.
+
+Outros estados não foram implementados ainda.
+"
+light                                   0
+category-class                          "WS"
+
+mesh-table
+{
+  default
+  {
+    mesh                                "poste_sinalizacao.im"
+    auto-create                         1
+  }
+  
+  tela
+  {
+    mesh                                "Numero.im"
+    att-parent                          "default"
+    auto-create                         1
+    att                                 "a.numero"
+    
+    effects
+    {
+      0
+      {
+        kind                            "name"
+        att                             "a.numero2"
+        name                            "Numero"
+        fontsize                        0.115
+        fontcolor                       0,0,0
+      }
+    }
+  }
+}
+
+signals
+{
+  0
+  {
+    speed                               0.34
+    light                               -1
+  }
+  
+  1
+  {
+    speed                               8.34
+    light                               -1
+  }
+  
+  4
+  {
+    speed                               16.67
+    light                               -1
+  }
+  
+  7
+  {
+    speed                               36.150002
+    light                               -1
+  }
+  
+  8
+  {
+    speed                               55.57
+    light                               -1
+  }
+  
+  24
+  {
+    speed                               16.67
+    light                               -1
+  }
+  
+  26
+  {
+    speed                               36.110001
+    light                               -1
+  }
+  
+  28
+  {
+    speed                               55.57
+    light                               -1
+  }
+  
+  31
+  {
+    speed                               0.1
+    light                               -1
+  }
+  
+  32
+  {
+    speed                               8.33
+    light                               -1
+  }
+  
+  34
+  {
+    speed                               75
+    light                               -1
+  }
+  
+  36
+  {
+    speed                               88.889999
+    light                               -1
+  }
+  
+  38
+  {
+    speed                               100
+    light                               -1
+  }
+}
+
+thumbnails
+{
+  0
+  {
+    image                               "TVM-512x512.jpg"
+    width                               512
+    height                              512
+  }
+  
+  1
+  {
+    image                               "tvm-240x180.jpg"
+    width                               240
+    height                              180
+  }
+}
+
+kuid-table
+{
+}
