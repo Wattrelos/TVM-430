@@ -1,4 +1,4 @@
-// Poste de semáfaco com velocidade máxima de 360 Km/h.
+// Poste de semáfaco com velocidade máxima de 320 Km/h.
 include "Signal.gs"
 include "Trackside.gs"
 include "MeshObject.gs"
