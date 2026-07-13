@@ -11,14 +11,14 @@ if ! command -v x86_64-w64-mingw32-g++ &> /dev/null; then
     exit 1
 fi
 
-echo "Compilando hud_bridge.gse..."
+echo "Compilando hud_bridge.dll..."
 
-x86_64-w64-mingw32-g++ -shared -o hud_bridge.gse hud_bridge.cpp -DBUILDING_DLL -lws2_32
+x86_64-w64-mingw32-g++ -shared -o hud_bridge.dll hud_bridge.cpp -DBUILDING_DLL -static -static-libgcc -static-libstdc++ -lws2_32
 
 
 if [ $? -eq 0 ]; then
     echo "========================================="
-    echo " Sucesso! hud_bridge.gse gerada."
+    echo " Sucesso! hud_bridge.dll gerada."
     echo "========================================="
 else
     echo "Erro durante a compilação."

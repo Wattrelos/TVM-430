@@ -16,5 +16,5 @@ endif()
 # Definir as propriedades do alvo
 set_target_properties(hud_bridge PROPERTIES
     PREFIX ""
-    SUFFIX ".gse"
+    SUFFIX ".dll"
 )

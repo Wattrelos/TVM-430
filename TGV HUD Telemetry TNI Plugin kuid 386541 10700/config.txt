@@ -3,7 +3,7 @@ kuid                                    <kuid:386541:10700>
 trainz-build                            4.5
 kind                                    "tni-controls-plugin"
 username                                "TGV HUD Telemetry TNI Plugin"
-tni-library-name                        "hud_bridge.gse"
+tni-library-name                        "hud_bridge.dll"
 category-class                          "YL"
 category-region                         "AU"
 category-era                            "2020s"

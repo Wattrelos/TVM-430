@@ -16,7 +16,7 @@ overlap                                 0
 repeater                                0
 trackside                               2.9
 trainz-build                            3.5
-script                                  "tvm430.gse"
+script                                  "tvm430.gs"
 class                                   "Tvm430"
 description                             "Extended Signal States:
 
