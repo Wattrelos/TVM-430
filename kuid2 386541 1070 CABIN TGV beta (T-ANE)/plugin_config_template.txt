@@ -1,0 +1,13 @@
+kuid                                    <kuid:386541:10700>
+trainz-build                            4.5
+category-class                          "XN"
+category-region                         "AU"
+category-era                            "2020s"
+kind                                    "tni-controls-plugin"
+username                                "TGV HUD Telemetry TNI Plugin"
+
+# Observação:
+# 1. Crie uma pasta separada para o seu asset do plugin no Content Manager do Trainz.
+# 2. Renomeie este arquivo para "config.txt" e coloque-o na pasta do plugin.
+# 3. Coloque o arquivo binário compilado ("hud_bridge.gse") nessa mesma pasta.
+# 4. Certifique-se de importar e submeter o asset no Content Manager.

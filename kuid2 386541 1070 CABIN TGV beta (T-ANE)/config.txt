@@ -1,4 +1,4 @@
-﻿
+
 kuid                                    <kuid:386541:1070>
 username                                "CABIN TGV beta (T-ANE). "
 category-region                         "AU;BE;BR;DE;FR;UK"
@@ -10,6 +10,11 @@ trainz-build                            3.5
 script                                  "tvm430.gs"
 class                                   "Tvm430"
 category-class                          "ZI"
+
+tni-plugins
+{
+  0                                     <kuid:386541:10700>
+}
 
 cameralist
 {
@@ -227,4 +232,5 @@ kuid-table
 {
   skins                                 <kuid2:386541:108:1>
   dials                                 <kuid2:386541:107:1>
+  hud-bridge-plugin                     <kuid:386541:10700>
 }

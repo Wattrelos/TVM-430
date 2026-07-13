@@ -3,7 +3,6 @@ include "signal.gs"
 include "trackside.gs"
 include "defaultlocomotivecabin.gs"
 include "junction.gs"
-include "speedlimit.gs"
 
 class Tvm430 isclass DefaultLocomotiveCabin
 {
@@ -12,6 +11,9 @@ class Tvm430 isclass DefaultLocomotiveCabin
 	public define int EX_CAUTION                 = 4;
 	public define int EX_ADVANCE_CAUTION         = 7;
 	public define int EX_PROCEED                 = 8;
+
+	// Declaração do método nativo na DLL/TNI Plugin
+	public native void SendHUDData(int speed, float speedLimit, float throttle, float trainBrake, float brakePipe, float brakeCylinder, int tvmSkin, int targetDistance);
 
 	float distance = 1;
 	int skin_atual = 0;
@@ -68,18 +70,18 @@ class Tvm430 isclass DefaultLocomotiveCabin
 		}
 		searchDirection = (searchV.GetVelocity() > -1.0);
 		GSTrackSearch trackSearch = searchV.BeginTrackSearch(searchDirection);
-		velocidade = train.GetVelocity() * 3.6;
-		if(train.GetVelocity() >= 0)
+		velocidade = train.GetTrainVelocity() * 3.6;
+		if(train.GetTrainVelocity() >= 0)
 		{
-			SetMeshAnimationFrame("speedometer",train.GetVelocity());
+			SetMeshAnimationFrame("speedometer",train.GetTrainVelocity());
 		}else{
 			velocidade = velocidade * -1;
-			SetMeshAnimationFrame("speedometer",(train.GetVelocity() * -1));
+			SetMeshAnimationFrame("speedometer",(train.GetTrainVelocity() * -1));
 		}
 		SetFXNameText("VLC", velocidade);
 		if (dials != null)
 		{
-			if (train.GetVelocity() > train.GetSpeedLimit())
+			if (train.GetTrainVelocity() > train.GetSpeedLimit())
 			{
 				SetFXTextureReplacement("dial", dials, 3); // Vermelho
 			}
@@ -152,9 +154,8 @@ class Tvm430 isclass DefaultLocomotiveCabin
 					distanciaDisplay = distance;
 					break;
 				}
-				if(cast<Signal> nextItem or cast<SpeedLimit> nextItem) {
+				if(cast<Signal> nextItem or trackSideItem.GetSpeedLimit() > 0.0) {
 					if(trackSearch.GetFacingRelativeToSearchDirection()) {
-						Trackside trackSideItem = cast<Trackside> nextItem;
 						if(trackSideItem != null){
 							float prox_limit_veloc = trackSideItem.GetSpeedLimit();
 							if(prox_limit_veloc > limite_velocidade) {
@@ -185,11 +186,11 @@ class Tvm430 isclass DefaultLocomotiveCabin
 
 							if (dials != null)
 							{
-								if(train.GetVelocity() > train.GetSpeedLimit())
+								if(train.GetTrainVelocity() > train.GetSpeedLimit())
 								{
 									SetFXTextureReplacement("dial",dials,3);
 								}else{
-									if((train.GetVelocity()) > prox_limit_veloc)
+									if((train.GetTrainVelocity()) > prox_limit_veloc)
 									{
 										SetFXTextureReplacement("dial",dials,2);
 									}else{
@@ -220,5 +221,35 @@ class Tvm430 isclass DefaultLocomotiveCabin
 		SetFXNameText("distance", distanciaDisplay);
 		SetMeshAnimationFrame("target_speed", targetSpeedVal, 1.0);
 		SetMeshAnimationFrame("pointer_limit", pointerLimitVal, 1.0);
+
+		// Telemetria para o HUD externo (UDP Socket via DLL C++)
+		float throttleVal = 0.0;
+		float trainBrakeVal = 0.0;
+		float brakePipeVal = 0.0;
+		float brakeCylinderVal = 0.0;
+
+		CabinControl throttleCtrl = GetNamedControl("throttle_lever");
+		CabinControl trainBrakeCtrl = GetNamedControl("trainbrake_lever");
+		CabinControl brakePipeCtrl = GetNamedControl("bptrainbrakepipe_needle");
+		CabinControl brakeCylinderCtrl = GetNamedControl("bptrainbrakecylinder_needle");
+
+		if (throttleCtrl != null)
+		{
+			throttleVal = throttleCtrl.GetValue();
+		}
+		if (trainBrakeCtrl != null)
+		{
+			trainBrakeVal = trainBrakeCtrl.GetValue();
+		}
+		if (brakePipeCtrl != null)
+		{
+			brakePipeVal = brakePipeCtrl.GetValue();
+		}
+		if (brakeCylinderCtrl != null)
+		{
+			brakeCylinderVal = brakeCylinderCtrl.GetValue();
+		}
+
+		SendHUDData(velocidade, limite_velocidade * 3.6, throttleVal, trainBrakeVal, brakePipeVal, brakeCylinderVal, skin_atual, distanciaDisplay);
 	}
 };

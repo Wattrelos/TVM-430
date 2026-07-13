@@ -1,0 +1,74 @@
+================================================================================
+ETCS / ERTMS Signaling System - User & Creator Guide
+================================================================================
+
+This document explains the operation of the LGV ETCS/ERTMS Right Side signaling 
+system for the Trainz Simulator and guides you on how to customize signal numbers 
+and speed limits in Surveyor.
+
+--------------------------------------------------------------------------------
+1. How the Signaling System Works
+--------------------------------------------------------------------------------
+This signaling system simulates modern cab signaling / automatic train control 
+principles, specifically using a dynamic deceleration curve to govern train speeds.
+
+* Speed-Limit Deceleration Curve:
+  Rather than relying only on fixed block aspects, the signal dynamically 
+  calculates a safe speed limit based on:
+  - The speed limit of the NEXT signal.
+  - The physical distance (in meters) to that next signal.
+  
+* Physics-Based Slowdowns (Torricelli's Law):
+  When a train approaches a signal displaying a lower speed limit or a stop, 
+  the script calculates the safe approach speed using Torricelli's formula:
+  
+      V_limit = SquareRoot( (V_next^2) + (2 * a * distance) )
+      
+  where:
+  - V_next is the speed limit of the next signal.
+  - distance is the distance to the next signal in meters.
+  - a is the comfortable deceleration rate, set to 0.6 m/s² (typical for 
+    high-speed passenger trains like the French TGV under normal service braking).
+    
+* Operational Behaviors:
+  - Clear Track Ahead: If the block is clear and the next signal's speed limit 
+    is high, the signal displays the configured maximum speed (default: 360 km/h).
+  - High-Speed Indication: Displays a green background when clear and configured
+    speed is over 220 km/h; otherwise displays a black background.
+  - Approaching Obstacles or Train: The speed limit will scale down dynamically 
+    following the deceleration curve, eventually reaching a complete stop 
+    (0 km/h or stop aspects) if a train, junction set against the route, or end of 
+    track is detected.
+  - Diverging Junctions: When a junction is set to a diverging route (curved path), 
+    the system automatically restricts the signal speed to 200 km/h (55.56 m/s) 
+    to prevent derailments.
+
+--------------------------------------------------------------------------------
+2. Customizing Signal Numbers and Speed Limits in Surveyor
+--------------------------------------------------------------------------------
+You can customize the maximum speed limit and the post/signal identification 
+number directly within Trainz Surveyor. This is ideal for placing signals on 
+tighter curves where trains must be restricted to lower speeds.
+
+Step-by-Step Instructions:
+
+1. Open your route/session in Trainz Surveyor.
+2. Select the "Properties" tool:
+   - In Classic Surveyor: Click the "?" (Get Properties) icon in the Objects menu.
+   - In Surveyor 2.0 (S20): Select the Freewire/Properties panel, or double-click 
+     the signal object.
+3. Click on the ETCS signal post. A configuration window titled "Configurações 
+   do Sinal ETCS:" will appear.
+4. Modify the properties:
+   - To Change the Signal Number: Click on the current value next to 
+     "Número do Poste". Enter your desired alphanumeric ID (e.g., "A-102") and 
+     confirm. If left blank, the signal will randomly generate an ID between 
+     1000 and 2000.
+   - To Change the Speed Limit: Click on the current value next to 
+     "Velocidade Máxima (km/h)". Type your new speed limit in km/h (e.g., "320" 
+     or "300") and confirm.
+5. The signal will immediately update its dynamic text displays: the post number 
+   and speed limit will be shown physically on the signal pole mesh in 3D.
+6. Save your route/session.
+
+================================================================================

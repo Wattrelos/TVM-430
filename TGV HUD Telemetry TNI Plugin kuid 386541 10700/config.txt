@@ -1,0 +1,27 @@
+
+kuid                                    <kuid:386541:10700>
+trainz-build                            4.5
+kind                                    "tni-controls-plugin"
+username                                "TGV HUD Telemetry TNI Plugin"
+tni-library-name                        "hud_bridge.gse"
+category-class                          "YL"
+category-region                         "AU"
+category-era                            "2020s"
+
+thumbnails
+{
+  thumb0
+  {
+    width                               240
+    height                              180
+    image                               "thumbnail_0.jpg"
+  }
+}
+
+controllers
+{
+}
+
+kuid-table
+{
+}
